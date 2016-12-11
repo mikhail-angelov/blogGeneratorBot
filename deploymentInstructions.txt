@@ -1,0 +1,11 @@
+to deploy to heroku do this:
+- commit all git changes
+- login to your Heroku account using heroku login.
+- if new application
+	- run: heroku create  - to prepare the Heroku environment.
+- if app created
+	- list app: heroku apps
+	- select app: heroku apps:<app name>
+- run heroku config:set NODE_BOT_TOKEN=<bot token> 
+- run heroku config:set HEROKU_URL=$(heroku info -s | grep web-url | cut -d= -f2) 
+- push to heroku: git push heroku master  - to deploy your bot to the Heroku server.

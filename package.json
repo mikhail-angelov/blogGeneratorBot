@@ -1,0 +1,26 @@
+{
+  "name": "telegram-bot-glog-generator",
+  "version": "1.0.0",
+  "description": "telegram-bot-glog-generator",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha *.spec.js",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "Telegram",
+    "Bot",
+    "explain shell"
+  ],
+  "author": "Mikhail Angelov",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "node-telegram-bot-api": "^0.24.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.1"
+  }
+}
