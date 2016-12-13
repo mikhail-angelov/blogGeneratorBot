@@ -17,6 +17,8 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "github": "^7.0.1",
+    "handlebars": "^4.0.6",
     "node-telegram-bot-api": "^0.24.0"
   },
   "devDependencies": {

@@ -3,7 +3,7 @@ const expect = require('chai').expect
 describe('bot',()=>{
 	const bot = require('./bot')
 
-	it('should process messages',done=>{
+	xit('should process messages',done=>{
 		const message = {
 			chat:{id:'TEST'},
 			text: 'TEST'
