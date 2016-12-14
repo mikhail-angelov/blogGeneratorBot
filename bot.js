@@ -1,7 +1,9 @@
-
 const users = require('./users')
-const siteGenerator = require('./siteGenerator')
+const articles = require('./articles')
+const staticSite = require('./staticSite')
+
 const commands = {
+	'/info': { state: [], handler: onInfo },
 	'/reg': { state: ['enter Github token', 'enter Github repo'], handler: onReg },
 	'/add': { state: ['enter new blog subject', 'enter new blog artice/link'], handler: onAdd },
 	'/update': { state: ['enter article id', 'type updated subject', 'type updated content'], handler: onUpdate },
@@ -10,6 +12,7 @@ const commands = {
 }
 const unknownCommand = 'Unrecognized command. \n' +
 	'Try those: \n' +
+	'/info - to get account info \n' +
 	'/reg - to register Girhub token \n' +
 	'/list - to getlist of articles \n' +
 	'/add - to add of article \n' +
@@ -18,7 +21,7 @@ const unknownCommand = 'Unrecognized command. \n' +
 const unregisteredError = 'You cannot use this command, please register your Github token/repo, then use it.'
 
 function processMessage(telegram, msg) {
-	const user = users.getUser(msg.from.username) || users.addTempUser(msg.from.username);
+	const user = users.getUser(msg.from.username);
 
 	if (commands[msg.text]) {
 		users.setActiveCommand(user, msg.text)
@@ -31,24 +34,63 @@ function processMessage(telegram, msg) {
 	console.log('op', msg)
 }
 
+function onInfo(telegram, user, msg) {
+	var info = 'Hi ' +
+		(!!user.name ? user.name : user.id) +
+		(!!user.token ? '\n your github account is registered' : '\n your github account is not registered, you can use this command /reg to do it') +
+		(!!user.repo ? '\n your site is generated at ' + user.repo + ' repo' : '')
+
+	telegram.sendMessage(msg.chat.id, info)
+}
+
 function onReg(telegram, user, msg) {
 	const state = users.getCommandState(user);
 	if (state == 0) {
+		users.setCommandState(user, 1)
 		telegram.sendMessage(msg.chat.id, commands[users.getActiveCommand(user)].state[0])
-		users.setCommandState(user, state + 1)
-	} else if (state == 1) {
-		users.setStateValue(user, msg.text)
-		telegram.sendMessage(msg.chat.id, commands[users.getActiveCommand(user)].state[1])
-		users.setCommandState(user, state + 1)
-	} else if (state == 2) {
+	} else if (!user.token) {
+		const token = msg.text
+		registerGithubAccount(user, msg.text)
+			.then(() => {
+				telegram.sendMessage(msg.chat.id, commands[users.getActiveCommand(user)].state[1])
+			})
+			.catch(err => {
+				users.setActiveCommand(user, null)
+				telegram.sendMessage(msg.chat.id, 'registration error ' + err)
+			})
+
+	} else if (!user.repo) {
+		const repo = msg.text
 		users.setActiveCommand(user, null)
-		user.token = users.getStateValue(user, 1)
-		user.repo = msg.text
-		users.addUser(user)
-			.then(() => telegram.sendMessage(msg.chat.id, 'user ' + user.id + ' is registered'))
-			.catch(err => telegram.sendMessage(msg.chat.id, 'registration error ' + err))
+		createGithubRepo(user, repo)
+			.then(() => telegram.sendMessage(msg.chat.id, 'new blog is created'))
+			.catch(err => {
+				telegram.sendMessage(msg.chat.id, 'github repository creation is failed ' + err)
+			})
+	} else {
+		telegram.sendMessage(msg.chat.id, 'you do not need this, your github account and repo are registered.')
 	}
 }
+
+function registerGithubAccount(user, token) {
+	return users.getGithubUser(token)
+		.then(info => {
+			user.token = token
+			user.owner = info.login
+			user.name = info.name
+			user.email = info.email
+			return users.updateUser(user)
+		})
+}
+
+function createGithubRepo(user, repo) {
+	return staticSite.createSite(user, repo)
+		.then(() => {
+			user.repo = repo
+			return users.updateUser(user)
+		})
+}
+
 function onAdd(telegram, user, msg) {
 	const state = users.getCommandState(user);
 	if (!users.isRegistered(user)) {
@@ -67,9 +109,9 @@ function onAdd(telegram, user, msg) {
 			subject: users.getStateValue(user, 1),
 			body: msg.text
 		}
-		siteGenerator.addArticle(command)
-			.then((article) =>{
-				 telegram.sendMessage(msg.chat.id, 'article ' + article.id + ' is added')
+		articles.add(command)
+			.then((article) => {
+				telegram.sendMessage(msg.chat.id, 'article ' + article.id + ' is added')
 			})
 			.catch(err => {
 				telegram.sendMessage(msg.chat.id, 'article add error ' + err)
@@ -99,7 +141,7 @@ function onUpdate(telegram, user, msg) {
 			subject: users.getStateValue(user, 2),
 			body: msg.text
 		}
-		siteGenerator.updateArticle(command)
+		articles.update(command)
 			.then(() => telegram.sendMessage(msg.chat.id, 'article ' + command.articleId + ' is updated'))
 			.catch(err => telegram.sendMessage(msg.chat.id, 'article update error ' + err))
 	}
@@ -117,7 +159,7 @@ function onRemove(telegram, user, msg) {
 			user: user,
 			articleId: msg.text
 		}
-		siteGenerator.removeArticle(command)
+		articles.remove(command)
 			.then(() => telegram.sendMessage(msg.chat.id, 'article ' + command.articleId + ' is removed'))
 			.catch(err => telegram.sendMessage(msg.chat.id, 'article remove error ' + err))
 	}
@@ -131,7 +173,7 @@ function onList(telegram, user, msg) {
 		const command = {
 			user: user,
 		}
-		siteGenerator.getArticleList(command)
+		articles.getList(command)
 			.then((list) => telegram.sendMessage(msg.chat.id, list))
 			.catch(err => {
 				telegram.sendMessage(msg.chat.id, 'article list error ' + err)

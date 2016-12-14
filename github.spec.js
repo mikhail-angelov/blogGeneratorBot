@@ -5,7 +5,7 @@ describe('github', function () {
 	this.timeout(10000)
 	const github = require('./github')
 
-	it('should do CRUD file operation', () => {
+	xit('should do CRUD file operation', () => {
 		const auth = {
 			token: process.env.TEST_GH_TOKEN,
 			branch: 'master',
@@ -37,7 +37,7 @@ describe('github', function () {
 			})
 	})
 
-	it('should get user info',()=>{
+	xit('should get user info',()=>{
 
 		return github.getUser(process.env.TEST_GH_TOKEN)
 		.then(info=>{

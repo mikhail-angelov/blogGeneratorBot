@@ -1,28 +1,39 @@
 const github = require('./github')
 const users = {
+
 }
 
 function getUser(id) {
-    return users[id]
+    if (users[id]) {
+        return users[id]
+    } else {
+        const user = { id: id, branch:'gh-pages' }
+        users[id] = user
+        return user
+    }
+}
+
+function getGithubUser(token) {
+    return github.getUser(token)
+}
+
+function updateUser(user) {
+    const id = user.id
+    users[id] = user
+    return user
 }
 
 function removeUser(id) {
     users[id] = null
 }
 
-function addTempUser(id) {
-    const user = {id:id}
-    users[id] = user
-    return user
-}
-
-function setStateValue(user, value){
+function setStateValue(user, value) {
     const state = user.commandState || 0
     user.stateValue = user.stateValue || {}
     user.stateValue[state] = value
 }
 
-function getStateValue(user, state){
+function getStateValue(user, state) {
     user.stateValue = user.stateValue || {}
     return user.stateValue[state]
 }
@@ -45,38 +56,14 @@ function isRegistered(user) {
     return user && user.id && user.token && user.repo
 }
 
-function addUser(user) {
-    return new Promise((resolve, reject) => {
-        if (user && user.id && user.token && user.repo) {
-            github.getUser(user.token)
-                .then(info => {
-                    const rec = {
-                        id: user.id,
-                        token: user.token,
-                        repo: user.repo,
-                        branch: user.branch || 'master',
-                        owner: info.login,
-                        name: info.name,
-                        email: info.email
-                    }
-                    users[user.id] = rec;
-                    resolve(rec)
-                })
-                .catch(err => {
-                    reject(err)
-                })
-        } else {
-            reject('Please specify github token and repo')
-        }
-    })
-}
+
 
 module.exports = {
     getUser,
-    addUser,
+    updateUser,
+    getGithubUser,
     removeUser,
     isRegistered,
-    addTempUser,
     setStateValue,
     getStateValue,
     getActiveCommand,
