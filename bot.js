@@ -21,17 +21,18 @@ const unknownCommand = 'Unrecognized command. \n' +
 const unregisteredError = 'You cannot use this command, please register your Github token/repo, then use it.'
 
 function processMessage(telegram, msg) {
-	const user = users.getUser(msg.from.username);
-
-	if (commands[msg.text]) {
-		users.setActiveCommand(user, msg.text)
-		commands[msg.text].handler(telegram, user, msg)
-	} else if (users.getActiveCommand(user)) {
-		commands[users.getActiveCommand(user)].handler(telegram, user, msg)
-	} else {
-		telegram.sendMessage(msg.chat.id, unknownCommand)
-	}
-	console.log('op', msg)
+	users.getUser(msg.from.username)
+		.then(user => {
+			if (commands[msg.text]) {
+				users.setActiveCommand(user, msg.text)
+				commands[msg.text].handler(telegram, user, msg)
+			} else if (users.getActiveCommand(user)) {
+				commands[users.getActiveCommand(user)].handler(telegram, user, msg)
+			} else {
+				telegram.sendMessage(msg.chat.id, unknownCommand)
+			}
+			console.log('op', msg)
+		})
 }
 
 function onInfo(telegram, user, msg) {
@@ -47,7 +48,11 @@ function onReg(telegram, user, msg) {
 	const state = users.getCommandState(user);
 	if (state == 0) {
 		users.setCommandState(user, 1)
-		telegram.sendMessage(msg.chat.id, commands[users.getActiveCommand(user)].state[0])
+		if(!user.token){
+			telegram.sendMessage(msg.chat.id, commands[users.getActiveCommand(user)].state[0])
+		}else{
+			telegram.sendMessage(msg.chat.id, commands[users.getActiveCommand(user)].state[1])
+		}
 	} else if (!user.token) {
 		const token = msg.text
 		registerGithubAccount(user, msg.text)
@@ -59,7 +64,7 @@ function onReg(telegram, user, msg) {
 				telegram.sendMessage(msg.chat.id, 'registration error ' + err)
 			})
 
-	} else if (!user.repo) {
+	} else{
 		const repo = msg.text
 		users.setActiveCommand(user, null)
 		createGithubRepo(user, repo)
@@ -67,9 +72,7 @@ function onReg(telegram, user, msg) {
 			.catch(err => {
 				telegram.sendMessage(msg.chat.id, 'github repository creation is failed ' + err)
 			})
-	} else {
-		telegram.sendMessage(msg.chat.id, 'you do not need this, your github account and repo are registered.')
-	}
+	} 
 }
 
 function registerGithubAccount(user, token) {
@@ -110,8 +113,8 @@ function onAdd(telegram, user, msg) {
 			body: msg.text
 		}
 		articles.add(command)
-			.then((article) => {
-				telegram.sendMessage(msg.chat.id, 'article ' + article.id + ' is added')
+			.then(() => {
+				telegram.sendMessage(msg.chat.id, 'article is added')
 			})
 			.catch(err => {
 				telegram.sendMessage(msg.chat.id, 'article add error ' + err)

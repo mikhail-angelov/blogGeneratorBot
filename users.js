@@ -1,15 +1,26 @@
 const github = require('./github')
-const users = {
+const dao = require('./dao')
 
+const users = {
 }
 
 function getUser(id) {
     if (users[id]) {
-        return users[id]
+        return Promise.resolve(users[id])
     } else {
-        const user = { id: id, branch:'gh-pages' }
-        users[id] = user
-        return user
+        return dao.getUser(id)
+            .then(user => {
+                if (user) {
+                    return user
+                } else {
+                    user = { id: id, branch: 'gh-pages' }
+                    return dao.createUser(user)
+                }
+            })
+            .then(user => {
+                users[id] = user
+                return user
+            })
     }
 }
 
@@ -20,11 +31,12 @@ function getGithubUser(token) {
 function updateUser(user) {
     const id = user.id
     users[id] = user
-    return user
+    return dao.updateUser(user)
 }
 
 function removeUser(id) {
     users[id] = null
+    return dao.removeUser(id)
 }
 
 function setStateValue(user, value) {

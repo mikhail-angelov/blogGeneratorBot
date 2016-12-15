@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha *.spec.js",
+    "e2e": "mocha *.e2e.js",
     "start": "node index.js"
   },
   "keywords": [
     "Telegram",
     "Bot",
-    "explain shell"
+    "site generator"
   ],
   "author": "Mikhail Angelov",
   "license": "ISC",
@@ -19,6 +20,7 @@
     "express": "^4.14.0",
     "github": "^7.0.1",
     "handlebars": "^4.0.6",
+    "mongodb": "^2.2.16",
     "node-telegram-bot-api": "^0.24.0"
   },
   "devDependencies": {
