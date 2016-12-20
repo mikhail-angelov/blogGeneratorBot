@@ -1,6 +1,6 @@
 const fs = require('fs')
 const handlebars = require('handlebars')
-const github = require('./github')
+var github = require('./github')
 const conf = require('./config')
 
 const BASE = 'staticBlog/'
@@ -16,18 +16,12 @@ function createSite(user, repo) {
         .then(() => copyToRepo(user, STYLE2))
         .then(() => copyToRepo(user, conf.templateFileName))
         .then(() => copyToRepo(user, conf.dataFileName, JSON.stringify(INIT_DATA)))
-        .catch(err => {
-            console.log('cannot create repo', err)
-        })
 }
 
 function removeSite(user) {
     return github.removeRepo(user, user.repo)
         .then(() => {
             user.repo = null;
-        })
-        .catch(err => {
-            console.log('cannot remove repo', err)
         })
 }
 

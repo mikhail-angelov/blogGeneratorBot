@@ -45,4 +45,20 @@ describe('github', function () {
 		})
 	})
 
+	it('should create repo',()=>{
+		const auth = {
+			token: process.env.TEST_GH_TOKEN,
+			branch: 'master',
+			owner: 'mikhail-angelov',
+			repo: 'blog'
+		}
+		return github.createRepo(auth, auth.repo)
+		.then(info=>{
+			expect(info).to.equal('test is failed')
+		})
+		.catch(err=>{
+			expect(err).to.equal('exist')
+		})
+	})
+
 })
