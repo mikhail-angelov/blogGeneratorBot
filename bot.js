@@ -4,9 +4,9 @@ const staticSite = require('./staticSite')
 
 const commands = {
 	'/info': { state: [], handler: onInfo },
-	'/reg': { state: ['enter Github token', 'enter Github repo'], handler: onReg },
-	'/add': { state: ['enter new blog subject', 'enter new blog artice/link'], handler: onAdd },
-	'/update': { state: ['enter article id', 'type updated subject', 'type updated content'], handler: onUpdate },
+	'/reg': { state: ['enter Github token, if you donnt have one, create it here https://github.com/settings/tokens (add all `user` and `repo` permissions for this token)', 'enter new Github repo name for your blog'], handler: onReg },
+	'/add': { state: ['enter new article subject', 'enter new article body'], handler: onAdd },
+	'/update': { state: ['enter article id', 'type updated subject', 'type updated body'], handler: onUpdate },
 	'/remove': { state: ['enter article id'], handler: onRemove },
 	'/list': { state: [], handler: onList }
 }
@@ -42,6 +42,10 @@ function onInfo(telegram, user, msg) {
 		(!!user.repo ? '\n your site is generated at ' + user.repo + ' repo' : '')
 
 	telegram.sendMessage(msg.chat.id, info)
+}
+
+function getGeneratedSiteUrl(user){
+	return `https://${user.owner}.github.io/${user.repo}`
 }
 
 function onReg(telegram, user, msg) {
@@ -145,7 +149,7 @@ function onUpdate(telegram, user, msg) {
 			body: msg.text
 		}
 		articles.update(command)
-			.then(() => telegram.sendMessage(msg.chat.id, 'article ' + command.articleId + ' is updated'))
+			.then(() => telegram.sendMessage(msg.chat.id, 'article ' + command.id + ' is updated'))
 			.catch(err => telegram.sendMessage(msg.chat.id, 'article update error ' + err))
 	}
 }
