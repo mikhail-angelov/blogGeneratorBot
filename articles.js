@@ -1,3 +1,4 @@
+'use strict'
 
 const github = require('./github')
 const staticSite = require('./staticSite')

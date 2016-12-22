@@ -1,3 +1,5 @@
+'use strict'
+
 module.exports = {
    templateFileName: 'template.html',
    dataFileName: 'data.json',

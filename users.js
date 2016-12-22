@@ -1,3 +1,5 @@
+'use strict'
+
 const github = require('./github')
 const dao = require('./dao')
 

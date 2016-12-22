@@ -1,3 +1,5 @@
+'use strict'
+
 const users = require('./users')
 const articles = require('./articles')
 const staticSite = require('./staticSite')
