@@ -11,6 +11,9 @@ const port = process.env.PORT || 8888;
 const app = express();
 app.use(bodyParser.json());
 
+//global excepion handler, not nice, but prevent crashes
+process.on(`uncaughtException`, console.error);
+
 //db
 const connection = {
 	dbUser: process.env.DB_USER,

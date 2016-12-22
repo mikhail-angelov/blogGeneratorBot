@@ -41,7 +41,7 @@ function onInfo(telegram, user, msg) {
 	var info = 'Hi ' +
 		(!!user.name ? user.name : user.id) +
 		(!!user.token ? '\n your github account is registered' : '\n your github account is not registered, you can use this command /reg to do it') +
-		(!!user.repo ? '\n your site is generated at ' + user.repo + ' repo' : '')
+		(!!user.repo ? '\n your site is generated at ' + user.repo + ' repo \n url: ' + getGeneratedSiteUrl(user) : '')
 
 	telegram.sendMessage(msg.chat.id, info)
 }
