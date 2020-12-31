@@ -1,6 +1,4 @@
-'use strict'
-
-const GitHubApi = require("github");
+import GitHubApi from "github"
 
 const github = new GitHubApi({
     // optional
@@ -92,7 +90,7 @@ function getFile(auth, fileName) {
 
 function getUser(token) {
     authenticate(token)
-    return github.users.get({})
+    return github.users.get()
 }
 
 function renderMarkDown(auth, md) {
@@ -108,7 +106,7 @@ function createRepo(auth, repo) {
         repo: repo,
         owner: auth.owner
     })
-        .then(info => {
+        .then(() => {
             return Promise.reject('exist')
         })
         .catch(err => {
@@ -140,4 +138,4 @@ function fromBase64(base64) {
 }
 
 
-module.exports = service;
+export default service;

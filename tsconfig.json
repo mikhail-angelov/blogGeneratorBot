@@ -1,0 +1,30 @@
+{
+    "include": [
+        "api","lib"
+    ],
+    "compilerOptions": {
+        "outDir": "dist",
+        "strict": false,
+        "strictNullChecks": false,
+        "sourceMap": true,
+        "target": "es2015", // Node.js 8
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"jsx": "react",
+		"declaration": true,
+		"pretty": true,
+		"newLine": "lf",
+		"stripInternal": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noEmitOnError": true,
+		// Disabled because of TS bugs: https://github.com/sindresorhus/tsconfig/issues/7
+		// "useDefineForClassFields": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+		"esModuleInterop":true
+    }
+}

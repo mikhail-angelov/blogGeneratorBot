@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "public": true,
+  "env": {
+    "MOD_BOT_TOKEN": "@blog_bot_token",
+    "GH_TOKEN": "@blog_gh_token",
+    "GH_USER": "@blog_gh_user",
+    "GH_REPO": "@blog_gh_repo",
+    "GH_BRANCH": "@blog_gh_branch",
+    "IS_WEB": "true"
+  },
+  "routes": [
+    {
+			"src": "/",
+			"dest": "dist/index.js"
+		}
+	]
+}
