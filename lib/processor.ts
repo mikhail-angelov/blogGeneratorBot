@@ -1,15 +1,15 @@
 import { SendMessage, Update } from "./telegram/telegram";
-import articles from './articles'
+import articles from "./articles";
 const ADD_TITLE = "addTitle";
 const ADD_BODY = "addBody";
 const unregisteredError = "You cannot use this bot, it's owned by other user.";
 
 const USER = {
-  token:'74cf9498fba6060428f02d6786cc042f88c04fbe',
-  owner: 'mikhail-angelov',
-  repo: 'blog',
-  branch:'gh-pages'
-}
+  token: process.env.GH_TOKEN,
+  branch: process.env.GH_BRANCH,
+  owner: process.env.GH_USER,
+  repo: process.env.GH_REPO,
+};
 
 export class Processor {
   private processor = {};
@@ -39,8 +39,13 @@ export class Processor {
   async addBody(update, last) {
     const subject = last.split("|")[1];
     const body = update.message.text;
-    await articles.add({user:USER, subject, body, id: update.message.message_id})
-    return ["done", ''];
+    await articles.add({
+      user: USER,
+      subject,
+      body,
+      id: update.message.message_id,
+    });
+    return ["done", ""];
   }
   async process(
     update: Update,
