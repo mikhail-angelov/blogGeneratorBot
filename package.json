@@ -17,7 +17,7 @@
   "author": "Mikhail Angelov",
   "license": "ISC",
   "dependencies": {
-    "github": "^7.0.1",
+    "@octokit/rest": "^18.0.12",
     "handlebars": "^4.0.6",
     "simple-get": "^4.0.0"
   },

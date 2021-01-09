@@ -2,12 +2,13 @@ import github from "./github";
 import staticSite from "./staticSite";
 import conf from "./config";
 
-function add(command) {
-  return loadData(command.user)
-    .then((data) => addRecord(data, command))
-    .then((data) => saveData(command.user, data))
-    .then((data) => staticSite.updateSite(command.user, data))
-    .catch(e=>console.log('add article error:', e));
+async function add(command) {
+  const data = await github.getFile(conf.dataFileName);
+  const articles = JSON.parse(data);
+  const updated = addRecord(articles, command);
+  await github.updateFile(conf.dataFileName, JSON.stringify(updated));
+
+  await staticSite.updateSite(updated);
 }
 
 function addRecord(articles, command) {
@@ -20,30 +21,30 @@ function addRecord(articles, command) {
   ].concat(articles);
 }
 
-function update(command) {
-  return loadData(command.user)
-    .then((data) =>
-      data.map((item) => {
-        if (item.id == command.id) {
-          item.subject = command.subject || item.subject;
-          item.body = command.body || item.body;
-        }
-        return item;
-      })
-    )
-    .then((data) => saveData(command.user, data))
-    .then((data) => staticSite.updateSite(command.user, data));
+async function update(command) {
+  const data = await github.getFile(conf.dataFileName);
+  const articles = JSON.parse(data);
+  const updated = articles.map((item) =>
+    item.id === command.id
+      ? { ...item, subject: command.subject, body: command.body }
+      : item
+  );
+  await github.updateFile(conf.dataFileName, JSON.stringify(updated));
+
+  await staticSite.updateSite(updated);
 }
 
-function remove(command) {
-  return loadData(command.user)
-    .then((data) => data.map((item) => item.id != command.id))
-    .then((data) => saveData(command.user, data))
-    .then((data) => staticSite.updateSite(command.user, data));
+async function remove(command) {
+  const data = await github.getFile(conf.dataFileName);
+  const articles = JSON.parse(data);
+  const updated = articles.filter((item) => item.id !== command.id);
+  await github.updateFile(conf.dataFileName, JSON.stringify(updated));
+
+  await staticSite.updateSite(updated);
 }
 
-function getList(command) {
-  return github.getFile(command.user, conf.dataFileName).then((response) => {
+function getList() {
+  return github.getFile(conf.dataFileName).then((response) => {
     const data = JSON.parse(response);
     const result = data.reduce((acc, item) => {
       acc = acc + item.id + "\n" + item.subject + "\n" + "------------\n";
@@ -55,18 +56,6 @@ function getList(command) {
 
 function generateUID() {
   return Math.random().toString(36).substring(2, 15);
-}
-
-function saveData(user, data) {
-  return github
-    .updateFile(user, conf.dataFileName, JSON.stringify(data))
-    .then(() => data);
-}
-
-function loadData(user) {
-  return github
-    .getFile(user, conf.dataFileName)
-    .then((response) => JSON.parse(response));
 }
 
 export default {
